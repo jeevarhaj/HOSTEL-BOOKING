@@ -1,6 +1,5 @@
 #include "httplib.h"
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
@@ -59,86 +58,25 @@ public:
                "\",\"students\":" + s +
                "}";
     }
-
-    string serialize() {
-        string s = to_string(id) + "|" + type + "|" + to_string(capacity) + "|";
-        for (int i = 0; i < students.size(); i++) {
-            s += students[i].first + "~" + students[i].second;
-            if (i != students.size() - 1) s += ",";
-        }
-        s += "|";
-        return s;
-    }
-
-    static Room deserialize(string line) {
-        stringstream ss(line);
-        string temp;
-
-        getline(ss, temp, '|');
-        int id = stoi(temp);
-
-        string type;
-        getline(ss, type, '|');
-
-        getline(ss, temp, '|');
-        int cap = stoi(temp);
-
-        Room r(id, type, cap);
-
-        string studentsPart;
-        getline(ss, studentsPart, '|');
-
-        if (!studentsPart.empty()) {
-            stringstream sp(studentsPart);
-            string entry;
-
-            while (getline(sp, entry, ',')) {
-                int pos = entry.find('~');
-                if (pos == string::npos) continue;
-
-                string name = entry.substr(0, pos);
-                string sid  = entry.substr(pos + 1);
-
-                r.students.push_back({name, sid});
-            }
-        }
-        return r;
-    }
 };
 
 // ================= MANAGER =================
 class HostelManager {
 public:
     vector<Room> rooms;
-    string file = "data.txt";
 
-   HostelManager() {
-    load();
-    if (rooms.empty()) {
+    // 🔥 FIX: Always initialize rooms (NO FILE SYSTEM)
+    HostelManager() {
         createRooms();
     }
-}
 
     void createRooms() {
+        rooms.clear();
+
         for (int i = 1; i <= 20; i++) {
             string type = (i <= 8) ? "Single" : (i <= 16) ? "Double" : "Triple";
             int cap = (i <= 8) ? 1 : (i <= 16) ? 2 : 3;
             rooms.push_back(Room(i, type, cap));
-        }
-        save();
-    }
-
-    void save() {
-        ofstream f(file);
-        for (auto &r : rooms) f << r.serialize() << endl;
-    }
-
-    void load() {
-        ifstream f(file);
-        string line;
-        while (getline(f, line)) {
-            if (!line.empty())
-                rooms.push_back(Room::deserialize(line));
         }
     }
 
@@ -168,7 +106,6 @@ public:
         for (auto &r : rooms) {
             if (r.id == id) {
                 r.addStudent(name, sid);
-                save();
                 return;
             }
         }
@@ -181,7 +118,6 @@ public:
         for (auto &r : rooms) {
             if (r.id == id) {
                 r.removeAll();
-                save();
                 return;
             }
         }
@@ -207,12 +143,8 @@ string getValue(const string& body, const string& key) {
 int main() {
     httplib::Server server;
     HostelManager mgr;
-    server.Get("/", [](const httplib::Request&, httplib::Response& res) {
-    ifstream file("index.html");
-    string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-    res.set_content(content, "text/html");
-});
-server.set_mount_point("/", "./");
+
+    server.set_mount_point("/", "./");
 
     // CORS
     server.Options(".*", [](const httplib::Request&, httplib::Response& res) {
@@ -268,7 +200,7 @@ server.set_mount_point("/", "./");
         }
     });
 
-    // 🔥 DEPLOY FIX (PORT)
+    // 🔥 Render PORT FIX
     int port = getenv("PORT") ? stoi(getenv("PORT")) : 8080;
 
     cout << "Server running on port " << port << endl;
