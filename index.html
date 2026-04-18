@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hostel Booking</title>
-<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet" href="/style.css">
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
 <!-- LOGIN -->
@@ -18,116 +22,34 @@
       <p>Room Management System</p>
     </div>
 
-    <!-- ROLE TOGGLE -->
     <div class="role-toggle">
       <button id="toggle-student" class="toggle-btn active" onclick="setRole('student')">Student</button>
-      <button id="toggle-admin"   class="toggle-btn"        onclick="setRole('admin')">Admin</button>
+      <button id="toggle-admin" class="toggle-btn" onclick="setRole('admin')">Admin</button>
     </div>
 
     <div id="login-error" class="error-msg hidden"></div>
+
     <div class="form-group">
       <label>Username</label>
-      <input type="text" id="username" placeholder="Enter username" autocomplete="off">
+      <input type="text" id="username">
     </div>
+
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="password" placeholder="Student: password starts with RA | Admin: admin1234">
+      <input type="password" id="password">
     </div>
-    <button class="btn-primary full-width" onclick="login()">Sign In</button>
-    <p class="login-hint">Students: any username, password starts with <strong>RA</strong></p>
+
+    <button onclick="login()">Sign In</button>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" class="app hidden">
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-icon-sm">🏠</div>
-      <span>Hostel Booking</span>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="#" class="nav-item active" data-page="dashboard" onclick="return navigate('dashboard',this)">
-        <span class="nav-icon">⊞</span> Dashboard
-      </a>
-      <a href="#" class="nav-item" id="nav-all-rooms" data-page="all-rooms" onclick="return navigate('all-rooms',this)">
-        <span class="nav-icon">🛏</span> All Rooms
-      </a>
-      <a href="#" class="nav-item" id="nav-reports" data-page="reports" onclick="return navigate('reports',this)">
-        <span class="nav-icon">📊</span> Reports
-      </a>
-      <a href="#" class="nav-item" id="nav-my-room" data-page="my-room" onclick="return navigate('my-room',this)">
-        <span class="nav-icon">🔑</span> My Room
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <button class="btn-logout" onclick="logout()"><span>⏻</span> Logout</button>
-    </div>
-  </aside>
-
-  <main class="main-content">
-    <div class="topbar">
-      <div class="topbar-left"><h2 id="page-title">Dashboard</h2></div>
-      <div class="topbar-right">
-        <div class="role-badge" id="role-badge">Student</div>
-        <div class="user-chip"  id="user-chip">user</div>
-      </div>
-    </div>
-
-    <div class="content-area">
-      <section id="page-dashboard" class="page active">
-        <div class="stats-grid"    id="stats-grid"></div>
-        <div class="section-header"><h3>Room Overview</h3></div>
-        <div class="rooms-grid"    id="dash-rooms-grid"></div>
-      </section>
-
-      <section id="page-all-rooms" class="page">
-        <div class="rooms-grid" id="all-rooms-grid"></div>
-      </section>
-
-      <section id="page-reports" class="page">
-        <div class="reports-wrap" id="reports-wrap"></div>
-      </section>
-
-      <section id="page-my-room" class="page">
-        <div id="my-room-content"></div>
-      </section>
-    </div>
-  </main>
+<div id="app" class="hidden">
+  <h2>Dashboard</h2>
+  <div id="rooms"></div>
 </div>
 
-<!-- BOOK MODAL -->
-<div id="book-modal" class="modal-overlay hidden">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Book Room <span id="modal-room-id"></span></h3>
-      <button onclick="closeModal()" class="modal-close">✕</button>
-    </div>
-    <div class="form-group">
-      <label>Your Name</label>
-      <input type="text" id="book-name" placeholder="Full name">
-    </div>
-    <div id="book-error" class="error-msg hidden"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary"   onclick="confirmBook()">Confirm Booking</button>
-    </div>
-  </div>
-</div>
+<script src="/app.js"></script>
 
-<script>
-function setRole(role) {
-  document.getElementById('toggle-student').classList.toggle('active', role === 'student');
-  document.getElementById('toggle-admin').classList.toggle('active',   role === 'admin');
-  const ph = document.getElementById('password');
-  if (role === 'admin') {
-    document.getElementById('username').value = 'admin';
-    ph.placeholder = 'admin1234';
-  } else {
-    document.getElementById('username').value = '';
-    ph.placeholder = 'Password starts with RA (e.g. RA2024001)';
-  }
-}
-</script>
-<script src="app.js"></script>
 </body>
 </html>
