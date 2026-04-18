@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <fstream>   // ✅ ADDED (required)
+#include <fstream>
 
 using namespace std;
 
@@ -43,10 +43,10 @@ public:
 
     string toJson() {
         string s = "[";
-        for (int i = 0; i < students.size(); i++) {
+        for (int i = 0; i < (int)students.size(); i++) {
             s += "{\"name\":\"" + students[i].first +
                  "\",\"id\":\"" + students[i].second + "\"}";
-            if (i != students.size() - 1) s += ",";
+            if (i != (int)students.size() - 1) s += ",";
         }
         s += "]";
 
@@ -72,7 +72,6 @@ public:
 
     void createRooms() {
         rooms.clear();
-
         for (int i = 1; i <= 20; i++) {
             string type = (i <= 8) ? "Single" : (i <= 16) ? "Double" : "Triple";
             int cap = (i <= 8) ? 1 : (i <= 16) ? 2 : 3;
@@ -82,9 +81,9 @@ public:
 
     string getAll() {
         string j = "[";
-        for (int i = 0; i < rooms.size(); i++) {
+        for (int i = 0; i < (int)rooms.size(); i++) {
             j += rooms[i].toJson();
-            if (i != rooms.size() - 1) j += ",";
+            if (i != (int)rooms.size() - 1) j += ",";
         }
         return j + "]";
     }
@@ -137,52 +136,66 @@ string getValue(const string& body, const string& key) {
     return body.substr(s, e - s);
 }
 
+// ================= CORS HELPER =================
+void setCORS(httplib::Response& res) {
+    res.set_header("Access-Control-Allow-Origin", "*");
+    res.set_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.set_header("Access-Control-Allow-Headers", "Content-Type");
+}
+
 // ================= SERVER =================
 int main() {
     httplib::Server server;
     HostelManager mgr;
 
-    // ✅ ADD THIS (serve static files like CSS & JS)
-    server.set_mount_point("/static", "./public");
+    // Serve static files from ./public at /static
+    if (!server.set_mount_point("/static", "./public")) {
+        cerr << "WARNING: Could not mount ./public — make sure the folder exists!" << endl;
+    }
 
-    // Serve index (UNCHANGED)
+    // Serve index.html
     server.Get("/", [](const httplib::Request&, httplib::Response& res) {
         ifstream file("index.html");
+        if (!file.is_open()) {
+            res.status = 404;
+            res.set_content("index.html not found. Check working directory.", "text/plain");
+            return;
+        }
         string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
         res.set_content(content, "text/html");
     });
 
-    // Test route
+    // Health check
     server.Get("/test", [](const httplib::Request&, httplib::Response& res) {
         res.set_content("Server working", "text/plain");
     });
 
-    // CORS
+    // CORS preflight
     server.Options(".*", [](const httplib::Request&, httplib::Response& res) {
-        res.set_header("Access-Control-Allow-Origin", "*");
-        res.set_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        setCORS(res);
         res.status = 204;
     });
 
-    // API
+    // GET all rooms
     server.Get("/api/rooms", [&](const httplib::Request&, httplib::Response& res) {
-        res.set_header("Access-Control-Allow-Origin", "*");
+        setCORS(res);
         res.set_content(mgr.getAll(), "application/json");
     });
 
+    // POST book
     server.Post("/api/book", [&](const httplib::Request& req, httplib::Response& res) {
+        setCORS(res);
         try {
-            int id = stoi(getValue(req.body, "room_id"));
+            string roomIdStr = getValue(req.body, "room_id");
             string name = getValue(req.body, "student_name");
             string sid  = getValue(req.body, "student_id");
 
-            if (name.empty() || sid.empty())
-                throw runtime_error("Missing data");
+            if (roomIdStr.empty() || name.empty() || sid.empty())
+                throw runtime_error("Missing required fields");
 
+            int id = stoi(roomIdStr);
             mgr.book(id, name, sid);
 
-            res.set_header("Access-Control-Allow-Origin", "*");
             res.set_content(R"({"success":true})", "application/json");
 
         } catch (const exception& e) {
@@ -190,18 +203,22 @@ int main() {
         }
     });
 
+    // POST vacate
     server.Post("/api/vacate", [&](const httplib::Request& req, httplib::Response& res) {
+        setCORS(res);
         try {
-            int id = stoi(getValue(req.body, "room_id"));
+            string roomIdStr = getValue(req.body, "room_id");
             string sid = getValue(req.body, "student_id");
 
-            if (sid != "ADMIN") {
-                throw runtime_error("Only admin can vacate");
-            }
+            if (roomIdStr.empty())
+                throw runtime_error("Missing room_id");
 
+            if (sid != "ADMIN")
+                throw runtime_error("Only admin can vacate");
+
+            int id = stoi(roomIdStr);
             mgr.vacate(id);
 
-            res.set_header("Access-Control-Allow-Origin", "*");
             res.set_content(R"({"success":true})", "application/json");
 
         } catch (const exception& e) {
@@ -210,7 +227,8 @@ int main() {
     });
 
     int port = getenv("PORT") ? stoi(getenv("PORT")) : 8080;
-
-    cout << "Server running on port " << port << endl;
+    cout << "Server running on http://0.0.0.0:" << port << endl;
     server.listen("0.0.0.0", port);
+
+    return 0;
 }

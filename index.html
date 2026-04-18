@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hostel Booking</title>
-
-<!-- ✅ FIXED -->
-<link rel="stylesheet" href="/static/style.css">
-
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hostel Booking</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
 <!-- LOGIN -->
@@ -71,7 +66,6 @@
   </aside>
 
   <main class="main-content">
-
     <div class="topbar">
       <h2 id="page-title">Dashboard</h2>
       <div>
@@ -116,20 +110,13 @@
 
     <div id="book-error" class="error-msg hidden"></div>
 
-    <button onclick="confirmBook()">Confirm</button>
-    <button onclick="closeModal()">Cancel</button>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="confirmBook()">Confirm</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
-<script>
-function setRole(role) {
-  document.getElementById('toggle-student').classList.toggle('active', role === 'student');
-  document.getElementById('toggle-admin').classList.toggle('active', role === 'admin');
-}
-</script>
-
-<!-- ✅ FIXED -->
 <script src="/static/app.js"></script>
-
 </body>
 </html>
