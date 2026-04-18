@@ -76,12 +76,30 @@ async function loadRooms() {
 }
 
 // ===== NAVIGATION =====
+// Mobile bottom nav — syncs with desktop navigate()
+function mobileNav(page, btn) {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  // Also sync the sidebar nav-items
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const sidebarItem = document.querySelector(`.nav-item[onclick*="${page}"]`);
+  if (sidebarItem) sidebarItem.classList.add('active');
+
+  navigate(page, null);
+}
+
 function navigate(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
 
   document.getElementById('page-' + page).classList.add('active');
   if (el) el.classList.add('active');
+
+  // Sync bottom nav
+  const bnav = document.querySelector(`.bottom-nav-btn[onclick*="${page}"]`);
+  if (bnav) bnav.classList.add('active');
 
   const titles = {
     'dashboard': 'Dashboard',

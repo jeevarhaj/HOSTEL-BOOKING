@@ -72,6 +72,7 @@
       <div>
         <span id="role-badge">Student</span>
         <span id="user-chip">User</span>
+        <button id="topbar-logout" onclick="logout()">Logout</button>
       </div>
     </div>
 
@@ -98,6 +99,22 @@
     </div>
   </main>
 </div>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bottom-nav-btn active" onclick="mobileNav('dashboard', this)">
+    <span class="bnav-icon">⊞</span>Dashboard
+  </button>
+  <button class="bottom-nav-btn" onclick="mobileNav('all-rooms', this)">
+    <span class="bnav-icon">🛏</span>Rooms
+  </button>
+  <button class="bottom-nav-btn" onclick="mobileNav('reports', this)">
+    <span class="bnav-icon">📊</span>Reports
+  </button>
+  <button class="bottom-nav-btn" onclick="mobileNav('my-room', this)">
+    <span class="bnav-icon">🔑</span>My Room
+  </button>
+</nav>
 
 <!-- BOOK MODAL -->
 <div id="book-modal" class="modal-overlay hidden">
