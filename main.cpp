@@ -144,7 +144,17 @@ int main() {
     httplib::Server server;
     HostelManager mgr;
 
-    server.set_mount_point("/", "./");
+    // Serve index
+    server.Get("/", [](const httplib::Request&, httplib::Response& res) {
+        ifstream file("index.html");
+        string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+        res.set_content(content, "text/html");
+    });
+
+    // Test route
+    server.Get("/test", [](const httplib::Request&, httplib::Response& res) {
+        res.set_content("Server working", "text/plain");
+    });
 
     // CORS
     server.Options(".*", [](const httplib::Request&, httplib::Response& res) {
@@ -154,13 +164,12 @@ int main() {
         res.status = 204;
     });
 
-    // GET rooms
+    // API
     server.Get("/api/rooms", [&](const httplib::Request&, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         res.set_content(mgr.getAll(), "application/json");
     });
 
-    // BOOK
     server.Post("/api/book", [&](const httplib::Request& req, httplib::Response& res) {
         try {
             int id = stoi(getValue(req.body, "room_id"));
@@ -180,7 +189,6 @@ int main() {
         }
     });
 
-    // VACATE (ADMIN ONLY)
     server.Post("/api/vacate", [&](const httplib::Request& req, httplib::Response& res) {
         try {
             int id = stoi(getValue(req.body, "room_id"));
@@ -200,9 +208,10 @@ int main() {
         }
     });
 
-    // 🔥 Render PORT FIX
     int port = getenv("PORT") ? stoi(getenv("PORT")) : 8080;
 
     cout << "Server running on port " << port << endl;
     server.listen("0.0.0.0", port);
+
+
 }
