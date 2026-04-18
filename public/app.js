@@ -33,8 +33,10 @@ function login() {
       return;
     }
   } else {
-    if (!pass.toUpperCase().startsWith('RA')) {
-      err.textContent = 'Student password must start with RA (your student ID).';
+    // Validate: must be RA followed by exactly 13 digits (e.g. RA2511003010683)
+    const raRegex = /^RA\d{13}$/i;
+    if (!raRegex.test(pass)) {
+      err.textContent = 'Student ID must be in format: RA + 13 digits (e.g. RA2511003010683)';
       err.classList.remove('hidden');
       return;
     }
@@ -135,9 +137,17 @@ function renderStats() {
 function roomCardHTML(room, showActions = true) {
   const isAdmin = currentUser && currentUser.role === 'admin';
   const myRoom = currentUser && room.students.some(s => s.id === currentUser.id);
-  const studentsHTML = room.students.map(s =>
-    `<div class="student-item">👤 ${s.name} <span style="color:var(--text2);font-size:0.78rem">(${s.id})</span></div>`
-  ).join('');
+
+  // Students: admin sees all, student sees only themselves (others show as "Occupied slot")
+  const studentsHTML = room.students.map(s => {
+    if (isAdmin) {
+      return `<div class="student-item">👤 ${s.name} <span style="color:var(--text2);font-size:0.78rem">(${s.id})</span></div>`;
+    } else if (s.id === currentUser?.id) {
+      return `<div class="student-item" style="color:var(--green)">👤 You (${s.id})</div>`;
+    } else {
+      return `<div class="student-item" style="color:var(--text2)">🔒 Occupied slot</div>`;
+    }
+  }).join('');
 
   let actionsHTML = '';
   if (showActions) {
@@ -175,6 +185,7 @@ function renderAllRooms() {
 }
 
 function renderReports() {
+  const isAdmin = currentUser && currentUser.role === 'admin';
   const singles = allRooms.filter(r => r.type === 'Single');
   const doubles = allRooms.filter(r => r.type === 'Double');
   const triples = allRooms.filter(r => r.type === 'Triple');
@@ -202,9 +213,15 @@ function renderReports() {
     </div>
     <div class="report-section">
       <h4>All Bookings</h4>
-      ${allRooms.flatMap(r => r.students.map(s =>
-        row(`Room ${r.id} (${r.type})`, `${s.name} — ${s.id}`)
-      )).join('') || '<div class="report-row"><span>No bookings yet</span></div>'}
+      ${isAdmin
+        ? allRooms.flatMap(r => r.students.map(s =>
+            row(`Room ${r.id} (${r.type})`, `${s.name} — ${s.id}`)
+          )).join('') || '<div class="report-row"><span>No bookings yet</span></div>'
+        : allRooms.flatMap(r => r.students
+            .filter(s => s.id === currentUser?.id)
+            .map(s => row(`Room ${r.id} (${r.type})`, `${s.name} — ${s.id}`)
+          )).join('') || '<div class="report-row"><span>You have no bookings yet</span></div>'
+      }
     </div>
   `;
 }
