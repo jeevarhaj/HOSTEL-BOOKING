@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <fstream>   // ✅ ADDED (required)
 
 using namespace std;
 
@@ -65,7 +66,6 @@ class HostelManager {
 public:
     vector<Room> rooms;
 
-    // 🔥 FIX: Always initialize rooms (NO FILE SYSTEM)
     HostelManager() {
         createRooms();
     }
@@ -89,7 +89,6 @@ public:
         return j + "]";
     }
 
-    // 🔥 ONE STUDENT = ONE ROOM
     void book(int id, string name, string sid) {
         transform(sid.begin(), sid.end(), sid.begin(), ::toupper);
 
@@ -113,7 +112,6 @@ public:
         throw runtime_error("Room not found");
     }
 
-    // 🔥 ADMIN VACATE
     void vacate(int id) {
         for (auto &r : rooms) {
             if (r.id == id) {
@@ -144,7 +142,10 @@ int main() {
     httplib::Server server;
     HostelManager mgr;
 
-    // Serve index
+    // ✅ ADD THIS (serve static files like CSS & JS)
+    server.set_mount_point("/static", "./public");
+
+    // Serve index (UNCHANGED)
     server.Get("/", [](const httplib::Request&, httplib::Response& res) {
         ifstream file("index.html");
         string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
@@ -212,6 +213,4 @@ int main() {
 
     cout << "Server running on port " << port << endl;
     server.listen("0.0.0.0", port);
-
-
 }

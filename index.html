@@ -6,7 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hostel Booking</title>
 
-<link rel="stylesheet" href="/style.css">
+<!-- ✅ FIXED -->
+<link rel="stylesheet" href="/static/style.css">
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -31,25 +32,104 @@
 
     <div class="form-group">
       <label>Username</label>
-      <input type="text" id="username">
+      <input type="text" id="username" placeholder="Enter username" autocomplete="off">
     </div>
 
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="password">
+      <input type="password" id="password" placeholder="Password">
     </div>
 
-    <button onclick="login()">Sign In</button>
+    <button class="btn-primary full-width" onclick="login()">Sign In</button>
+
+    <p class="login-hint">
+      Students: password starts with <strong>RA</strong><br>
+      Admin: <strong>admin / admin1234</strong>
+    </p>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" class="hidden">
-  <h2>Dashboard</h2>
-  <div id="rooms"></div>
+<div id="app" class="app hidden">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon-sm">🏠</div>
+      <span>Hostel Booking</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" onclick="return navigate('dashboard', this)">⊞ Dashboard</a>
+      <a href="#" class="nav-item" onclick="return navigate('all-rooms', this)">🛏 All Rooms</a>
+      <a href="#" class="nav-item" onclick="return navigate('reports', this)">📊 Reports</a>
+      <a href="#" class="nav-item" onclick="return navigate('my-room', this)">🔑 My Room</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button onclick="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="topbar">
+      <h2 id="page-title">Dashboard</h2>
+      <div>
+        <span id="role-badge">Student</span>
+        <span id="user-chip">User</span>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <section id="page-dashboard" class="page active">
+        <div id="stats-grid"></div>
+        <h3>Room Overview</h3>
+        <div id="dash-rooms-grid"></div>
+      </section>
+
+      <section id="page-all-rooms" class="page">
+        <div id="all-rooms-grid"></div>
+      </section>
+
+      <section id="page-reports" class="page">
+        <div id="reports-wrap"></div>
+      </section>
+
+      <section id="page-my-room" class="page">
+        <div id="my-room-content"></div>
+      </section>
+
+    </div>
+  </main>
 </div>
 
-<script src="/app.js"></script>
+<!-- BOOK MODAL -->
+<div id="book-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <h3>Book Room <span id="modal-room-id"></span></h3>
+
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="book-name">
+    </div>
+
+    <div id="book-error" class="error-msg hidden"></div>
+
+    <button onclick="confirmBook()">Confirm</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+function setRole(role) {
+  document.getElementById('toggle-student').classList.toggle('active', role === 'student');
+  document.getElementById('toggle-admin').classList.toggle('active', role === 'admin');
+}
+</script>
+
+<!-- ✅ FIXED -->
+<script src="/static/app.js"></script>
 
 </body>
 </html>
