@@ -112,10 +112,12 @@ public:
     vector<Room> rooms;
     string file = "data.txt";
 
-    HostelManager() {
-        load();
-        if (rooms.empty()) createRooms();
+   HostelManager() {
+    load();
+    if (rooms.empty()) {
+        createRooms();
     }
+}
 
     void createRooms() {
         for (int i = 1; i <= 20; i++) {
